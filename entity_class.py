@@ -124,6 +124,8 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image_copy.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.rect.width = 250
+        self.hit_box = None
         self.animation = 0
         self.walk_countdown = 0
         self.idle_countdown = -1
@@ -132,17 +134,21 @@ class Enemy(pygame.sprite.Sprite):
         self.status = 'walk'
         self.facing = 'right'
         self.map_data = Map_data()
-        self.box = pygame.Surface((250,self.image_copy.get_height()))
-        self.box.fill((0,225,0))
-        # self.box.set_colorkey((0,225,0))
-        self.hit_box = None
     
-    def player_hit(self,hit_box,player_rect):
-        if player_rect.colliderect(hit_box):
+    def player_hit(self,player_rect):
+#enemy attacking towards the position of the player ------------------------------------------------#
+        if self.hit_box.colliderect(player_rect):
+            if (self.hit_box.left < player_rect.left
+                 and self.hit_box.right > player_rect.right):
+                    self.facing = 'left'
+            if (self.hit_box.left < player_rect.right
+                 and self.hit_box.right < player_rect.right):
+                    self.facing = 'right'
             self.status = 'attack' 
         else:
             self.status = 'walk'
-        print(self.status)
+      
+
     def collision_test(self):
         hit_list = []
         for tile in self.map_data.map.tiles:
@@ -160,7 +166,6 @@ class Enemy(pygame.sprite.Sprite):
         if self.idle_countdown > 0:
             self.idle_countdown -= 1
 
-   
         if random.randint(1,200) == 1 and self.idle_countdown == 0 and self.status != 'attack':
             self.status = 'idle'
             self.idle_countdown = 50 
@@ -190,7 +195,9 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect.bottom = tile.top
             elif direction[1] < 0:
                 self.rect.top = tile.bottom
-
+        
+        self.hit_box = self.rect.copy()
+        self.hit_box.left = 200
         self.update(dt)
 
     def update(self,dt):
@@ -203,8 +210,8 @@ class Enemy(pygame.sprite.Sprite):
             self.image.set_colorkey((0,0,0)) 
 
     def draw(self,surface,scroll,player_rect):
-        self.hit_box = surface.blit(self.box,(self.rect.x - int(scroll[0]) - 100, self.rect.y + 3 - int(scroll[1])))
-        self.player_hit(self.hit_box,player_rect)
+        # pygame.draw.rect(surface, "green", (self.hit_box.x - int(scroll[0]),self.hit_box.y + 3 - int(scroll[1]), self.hit_box.width, self.hit_box.height),1) # hit-box highlight
+        self.player_hit(player_rect)
         surface.blit(self.image,(self.rect.x - int(scroll[0]),self.rect.y + 3 - int(scroll[1])))
 
 class Meter(pygame.sprite.Sprite):
