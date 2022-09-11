@@ -1,4 +1,5 @@
 import pygame, os
+from setup import*
 
 class Map(pygame.sprite.Sprite):
     def __init__(self):
@@ -16,7 +17,13 @@ class Map(pygame.sprite.Sprite):
             rect.y = 180
             self.tiles.append([image,rect])
    
-    def draw(self,surface,scroll):
+    def draw(self,surface):
         for tile in self.tiles:
             rect = surface.blit(tile[0],(tile[1].x - int(scroll[0]),tile[1].y-int(scroll[1])))
             self.tile_map[f'{int(rect.x // self.tile_size)}:{int(rect.y // self.tile_size)}'] = rect
+
+
+class Map_data:
+    def __init__(self):
+        self.map = Map()
+        self.map.setup()

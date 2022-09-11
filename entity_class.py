@@ -1,14 +1,10 @@
 import pygame, os, random
+from setup import*
 from game_sprites_data import*
 from effects_and_particles import*
 from sprite_groups import*
 from key_mapping_data import*
 from map_loader import*
-
-class Map_data:
-    def __init__(self):
-        self.map = Map()
-        self.map.setup()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -124,7 +120,6 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image_copy.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.rect.width = 250
         self.hit_box = None
         self.animation = 0
         self.walk_countdown = 0
@@ -134,20 +129,31 @@ class Enemy(pygame.sprite.Sprite):
         self.status = 'walk'
         self.facing = 'right'
         self.map_data = Map_data()
-    
+        self.color = [(147,48,59),(31,14,28),(210,100,113)]
+
     def player_hit(self,player_rect):
 #enemy attacking towards the position of the player ------------------------------------------------#
         if self.hit_box.colliderect(player_rect):
-            if (self.hit_box.left < player_rect.left
-                 and self.hit_box.right > player_rect.right):
+            if (player_rect.right > self.hit_box.left
+                 and player_rect.left < self.hit_box.left ):
                     self.facing = 'left'
-            if (self.hit_box.left < player_rect.right
-                 and self.hit_box.right < player_rect.right):
+            if (player_rect.right > self.hit_box.right
+                 and player_rect.left < self.hit_box.right):
                     self.facing = 'right'
             self.status = 'attack' 
         else:
             self.status = 'walk'
-      
+        
+        self.shoot_player()
+    
+    def shoot_player(self):
+        if (self.status == 'attack' and int(self.animation) == enemy_sprites[self.status]['frames']):
+            if self.facing == 'right':
+                direction = [7,-4]
+            else:
+                direction = [-7,-4]
+            projectile = Projectile([self.rect.centerx - int(scroll[0]),self.rect.centery - int(scroll[1])],direction,[4,0.1,0,self.color])
+            projectiles.add(projectile)
 
     def collision_test(self):
         hit_list = []
@@ -197,6 +203,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect.top = tile.bottom
         
         self.hit_box = self.rect.copy()
+        self.hit_box.width = 250
         self.hit_box.left = 200
         self.update(dt)
 
@@ -210,7 +217,7 @@ class Enemy(pygame.sprite.Sprite):
             self.image.set_colorkey((0,0,0)) 
 
     def draw(self,surface,scroll,player_rect):
-        # pygame.draw.rect(surface, "green", (self.hit_box.x - int(scroll[0]),self.hit_box.y + 3 - int(scroll[1]), self.hit_box.width, self.hit_box.height),1) # hit-box highlight
+        #pygame.draw.rect(surface, "green", (self.hit_box.x - int(scroll[0]),self.hit_box.y + 3 - int(scroll[1]), self.hit_box.width, self.hit_box.height),1) # hit-box highlight
         self.player_hit(player_rect)
         surface.blit(self.image,(self.rect.x - int(scroll[0]),self.rect.y + 3 - int(scroll[1])))
 
@@ -226,7 +233,6 @@ class Meter(pygame.sprite.Sprite):
 
     def draw(self,surface):
         surface.blit(self.image1,(5,5))
-
 
 class Trees(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -277,9 +283,46 @@ class Droplet(pygame.sprite.Sprite):
            effects.add(pulse1,pulse2)  
            for i in range(50):
                 disperse = Static_Particle([self.rect.x - int(scroll[0]),self.rect.y - int(scroll[1])],[random.randrange(-5,5),
-                random.randrange(-5,5)],[random.randint(4,6),0.1,0.1,0,self.color[random.randint(0,2)]],[0,self.map_data.map.tile_map,self.map_data.map.tile_size])
+                random.randrange(-5,5)],[random.randint(4,6),0,0.1,0,self.color[random.randint(0,2)]],[0,self.map_data.map.tile_map,self.map_data.map.tile_size])
                 particles.add(disperse)       
            self.kill()     
     
     def draw(self,surface,scroll):
         surface.blit(self.image,(self.rect.x - int(scroll[0]),self.rect.y - int(scroll[1])))
+
+class Projectile(pygame.sprite.Sprite):
+	def __init__(self,position,direction,options): #option are [radius,trajectory,width,color]
+		pygame.sprite.Sprite.__init__(self)
+		self.position = position
+		self.direction = direction
+		self.options = options
+		self.trajectory = 0
+		self.hit_box = None
+		self.map_data = Map_data()
+
+	def collision(self):
+		for tile in self.map_data.map.tiles:
+			if (tile[1].colliderect(self.hit_box)):
+				for i in range(40):
+					scatter = Static_Particle([self.hit_box.x, self.hit_box.y],[random.randint(-2,2),random.randint(-2,10)],
+					[random.randint(4,6),0,0.1,0,self.options[3][random.randint(0,2)]],[0,self.map_data.map.tile_map,self.map_data.map.tile_size])
+					effects.add(scatter)	
+				self.kill()
+
+	def update(self,dt):
+		self.position[0] += self.direction[0] * dt
+		self.position[1] += self.direction[1] * dt
+
+		self.direction[1] += self.trajectory 
+		self.trajectory += self.options[1]
+
+		self.hit_box = pygame.Rect(int(self.position[0]) - 10,int(self.position[1]) - 10, 20,20)
+		for i in range(10):
+			effect = Static_Particle([int(self.position[0]),int(self.position[1])],[2,0],
+			[self.options[0],0.1,0.5,0,self.options[3][random.randint(0,2)]],[0,self.map_data.map.tile_map,self.map_data.map.tile_size])
+			effects.add(effect)
+		self.collision()
+	def draw(self,surface):
+# hit_box-----------------------------------------------------------------#
+		#pygame.draw.rect(surface, 'green', self.hit_box, 1)
+		pygame.draw.circle(surface, self.options[3][random.randint(0,2)], (int(self.position[0]), int(self.position[1])), self.options[0], self.options[2])

@@ -1,4 +1,5 @@
 import pygame
+from setup import*
 
 class Pulse_Ease_Out(pygame.sprite.Sprite):
 	def __init__(self,position,option,color,value):

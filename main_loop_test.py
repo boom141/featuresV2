@@ -1,4 +1,5 @@
 from setup import*
+from map_loader import*
 from entity_class import*
 
 
@@ -41,11 +42,15 @@ while True: # game loop
         droplet.player_collision(scroll,player.rect)
         droplet.draw(display,scroll)
     
-    map_data.map.draw(display,scroll)
+    for projectile in projectiles:
+        projectile.update(dt)
+        projectile.draw(display,player.rect)
+        
+    map_data.map.draw(display)
     player.move(dt)
     player.draw(display,scroll)
-    enemy.move(dt)
-    enemy.draw(display,scroll,player.rect)
+    # enemy.move(dt)
+    # enemy.draw(display,scroll,player.rect)
     meter.draw(display)
 
     
@@ -56,6 +61,9 @@ while True: # game loop
     for effect in effects:
         effect.update(dt)
         effect.draw(display)
+    
+    
+
 
     for event in pygame.event.get(): # event loop
         if event.type == QUIT:
