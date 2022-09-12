@@ -34,14 +34,14 @@ class Static_Particle(pygame.sprite.Sprite):
 		self.physics = physics
 		self.gravity = 0
 	def update(self,dt): 
-			self.position[0] += self.direction[0]
+			self.position[0] += self.direction[0] * dt
 			loc_str = f'{int(self.position[0] / self.physics[2])}:{int(self.position[1] / self.physics[2])}'
 			if self.physics[0] > 0:
 				if loc_str in self.physics[1]:
 					self.direction[0] = -self.physics[0] * self.direction[0]
 					self.direction[1] *= 0.95
 					self.position[0] += self.direction[0] * 2
-			self.position[1] += self.direction[1]
+			self.position[1] += self.direction[1] * dt
 			loc_str = f'{int(self.position[0] / self.physics[2])}:{int(self.position[1] / self.physics[2])}'
 			if self.physics[0] > 0:
 				if loc_str in self.physics[1]:
@@ -55,4 +55,4 @@ class Static_Particle(pygame.sprite.Sprite):
 				self.kill()
 	
 	def draw(self,surface):
-		pygame.draw.circle(surface, self.options[4], [self.position[0], self.position[1]], self.options[0], self.options[3])
+		pygame.draw.circle(surface, self.options[4], [self.position[0], self.position[1] + self.physics[3]], self.options[0], self.options[3])

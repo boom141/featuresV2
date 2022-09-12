@@ -1,29 +1,21 @@
 import pygame, os
-from setup import*
+from setup import* 
 
-class Map(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.tiles = []
-        self.tile_map = {}
-        self.tile_size = 16
-    
-    def setup(self):
-        for i in range(600//16):
-            image = pygame.image.load(os.path.join('asset', 'tile1.png'))
-            image.set_colorkey((0,0,0))
-            rect = image.get_rect()
-            rect.x = i*self.tile_size
-            rect.y = 180
-            self.tiles.append([image,rect])
-   
-    def draw(self,surface):
-        for tile in self.tiles:
-            rect = surface.blit(tile[0],(tile[1].x - int(scroll[0]),tile[1].y-int(scroll[1])))
-            self.tile_map[f'{int(rect.x // self.tile_size)}:{int(rect.y // self.tile_size)}'] = rect
+class Map:
+	def __init__(self):
+		self.tiles = []
+		self.tile_map = {}
+		self.tile_size = 16
+	
+	def initialize(self,surface):
+		self.tiles = []
+		self.tile_map = {}
+		for i in range(600//16):
+			image = pygame.image.load(os.path.join('asset', 'tile1.png'))
+			image.set_colorkey((0,0,0))
+			rect = surface.blit(image,(i*self.tile_size - int(scroll[0]),180 - int(scroll[1])))
+			self.tiles.append(pygame.Rect(i*self.tile_size,180,self.tile_size,self.tile_size))
+			self.tile_map[f'{int(rect.x / self.tile_size)}:{int(rect.y / self.tile_size)}'] = 0
 
 
-class Map_data:
-    def __init__(self):
-        self.map = Map()
-        self.map.setup()
+map = Map()

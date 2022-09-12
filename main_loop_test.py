@@ -3,7 +3,6 @@ from map_loader import*
 from entity_class import*
 
 
-map_data = Map_data()
 player = Player(125,80)
 enemy = Enemy(280,120)
 meter = Meter()
@@ -31,37 +30,34 @@ while True: # game loop
 #camera ----------------------------------------------------------------#
     scroll[0] += (player.rect.x-scroll[0]-128)/20
     scroll[1] += (player.rect.y-scroll[1]-115)/20
-
 # draw section----------------------------------------------------------#
     for tree in trees:
         tree.update(dt)
-        tree.draw(display,scroll)
+        tree.draw(display)
     
     for droplet in droplets:
         droplet.update(dt)
-        droplet.player_collision(scroll,player.rect)
-        droplet.draw(display,scroll)
+        droplet.player_collision(player.rect)
+        droplet.draw(display)
     
     for projectile in projectiles:
         projectile.update(dt)
-        projectile.draw(display,player.rect)
-        
-    map_data.map.draw(display)
+        projectile.draw(display)
+
+    map.initialize(display)
     player.move(dt)
-    player.draw(display,scroll)
-    # enemy.move(dt)
-    # enemy.draw(display,scroll,player.rect)
+    player.draw(display)
+    enemy.move(dt)
+    enemy.draw(display,player.rect)
     meter.draw(display)
 
-    
     for particle in particles:
         particle.update(dt)
-        particle.draw(display)
+        particle.draw(display)   
     
     for effect in effects:
         effect.update(dt)
         effect.draw(display)
-    
     
 
 
