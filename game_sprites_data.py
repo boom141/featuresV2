@@ -13,7 +13,7 @@ player_sprites = {
     'jump': {
         'right': 'player_jump_right',
         'left': 'player_jump_left',
-        'frames': 1
+        'frames': 5
     }
 
 }

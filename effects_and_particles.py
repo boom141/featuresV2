@@ -1,4 +1,4 @@
-import pygame
+import pygame, os
 from setup import*
 
 class Pulse_Ease_Out(pygame.sprite.Sprite):
@@ -56,3 +56,29 @@ class Static_Particle(pygame.sprite.Sprite):
 	
 	def draw(self,surface):
 		pygame.draw.circle(surface, self.options[4], [self.position[0], self.position[1] + self.physics[3]], self.options[0], self.options[3])
+
+
+class Landing(pygame.sprite.Sprite):
+	def __init__(self,position,offset,options):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = pygame.image.load(os.path.join(f'asset/effects/landing', '0.png'))
+		self.image_copy = self.image.copy()
+		self.position = position
+		self.offset = offset
+		self.options = options
+		self.animation = 0
+	
+	def update(self,dt):
+		if self.options[0]:
+			if self.animation >= self.options[1]:
+				self.kill()
+			self.animation += 0.395 * dt
+			
+		if self.animation <= self.options[1]:
+			self.image = pygame.image.load(os.path.join(f'asset/effects/landing', f'{int(self.animation)}.png'))
+			self.image_copy = pygame.transform.scale(self.image,(105,30))
+			self.image_copy.set_colorkey((0,0,0))
+
+	def draw(self,surface):
+		if self.options[0]:
+			surface.blit(self.image_copy,(self.position[0] - self.offset[0],self.position[1] - self.offset[1]))
