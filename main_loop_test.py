@@ -28,28 +28,31 @@ while True: # game loop
     display.fill((25,25,25)) 
 
 #camera ----------------------------------------------------------------#
-    scroll[0] += (player.rect.x-scroll[0]-128)/20
+    scroll[0] += (player.rect.x-scroll[0]-128)/20 # divide 20 is for fancy moving of camera position
     scroll[1] += (player.rect.y-scroll[1]-115)/20 
 
 # draw section----------------------------------------------------------#
+    meter.update(dt)
+    meter.draw(display)
+
     for tree in trees:
         tree.update(dt)
         tree.draw(display)
     
     for droplet in droplets:
-        droplet.update(player.rect,dt)
+        droplet.update(player.rect,meter,dt)
         droplet.draw(display)
     
     for projectile in projectiles:
-        projectile.update(player.hit_box,dt)
+        projectile.update(player.hit_box,meter,dt)
         projectile.draw(display)
 
+
     map.initialize(display)
-    player.move(dt)
+    player.move(meter,dt)
     player.draw(display)
     enemy.move(player.rect,dt)
     enemy.draw(display)
-    meter.draw(display)
 
     for particle in particles:
         particle.update(dt)

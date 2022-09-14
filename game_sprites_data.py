@@ -14,6 +14,21 @@ player_sprites = {
         'right': 'player_jump_right',
         'left': 'player_jump_left',
         'frames': 5
+            },
+    'hit-idle': { 
+        'right': 'player_idle_right',
+        'left': 'player_idle_left',
+        'frames': 10  
+            },
+    'hit-walk': {
+        'right': 'player_R',
+        'left': 'player_L',
+        'frames': 4
+            },
+    'hit-jump': {
+        'right': 'player_jump_right',
+        'left': 'player_jump_left',
+        'frames': 5
     }
 
 }
